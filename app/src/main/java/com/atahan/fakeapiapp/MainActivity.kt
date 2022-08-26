@@ -3,14 +3,25 @@ package com.atahan.fakeapiapp
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.atahan.fakeapiapp.model.Post
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var posts: ArrayList<Post>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val recyclerView: RecyclerView = findViewById(R.id.recycler_view_post)
+        posts = ArrayList()
+        val adapter = PostAdapter(posts)
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        recyclerView.adapter = adapter
 
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -27,7 +38,9 @@ class MainActivity : AppCompatActivity() {
                     //TODO unsuccessful scenario
                 }
                 //TODO successful scenario
-
+                Log.d(TAG, "${response.body()}")
+                response.body()?.let { posts.addAll(it) }
+                adapter.notifyDataSetChanged()
             }
 
             override fun onFailure(call: Call<List<Post>>, t: Throwable) {
@@ -35,6 +48,7 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+
     }
 
     companion object {
